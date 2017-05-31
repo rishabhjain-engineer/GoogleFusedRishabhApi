@@ -1,0 +1,99 @@
+{
+  "project_info": {
+    "project_number": "210592221435",
+    "firebase_url": "https://fir-realtimedatabase-bc083.firebaseio.com",
+    "project_id": "fir-realtimedatabase-bc083",
+    "storage_bucket": "fir-realtimedatabase-bc083.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:210592221435:android:f67ed0a9d7a27b91",
+        "android_client_info": {
+          "package_name": "com.example.rishabh.firebaserealtimedatabase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "210592221435-7tat9sj4i9hllv32s9jrribbthunu4f1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.rishabh.firebaserealtimedatabase",
+            "certificate_hash": "50b8b8489d4b90bd2a8906f1491ded7d5f1f5c5e"
+          }
+        },
+        {
+          "client_id": "210592221435-qq17s84hq8h9sdisnso12s0k20ejqb8r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsM6Usg3x_DlbU_B3qqGde2gcPb2hy-Kg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "210592221435-qq17s84hq8h9sdisnso12s0k20ejqb8r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:210592221435:android:0454e6996c52548c",
+        "android_client_info": {
+          "package_name": "com.example.rishabh.googlefusedapi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "210592221435-d0b20gsg47b7i7cj4cjervaacsv2u33a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.rishabh.googlefusedapi",
+            "certificate_hash": "50b8b8489d4b90bd2a8906f1491ded7d5f1f5c5e"
+          }
+        },
+        {
+          "client_id": "210592221435-qq17s84hq8h9sdisnso12s0k20ejqb8r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsM6Usg3x_DlbU_B3qqGde2gcPb2hy-Kg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "210592221435-qq17s84hq8h9sdisnso12s0k20ejqb8r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
