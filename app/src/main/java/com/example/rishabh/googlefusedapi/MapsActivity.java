@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -54,6 +55,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private List<String> mDeviceIdList = new ArrayList<>();
     private List<Integer> mColoList = new ArrayList<>();
     private List<Coordinate> mCoordinateList = new ArrayList<>();
+    private CoordinatesToFirebase mCoordinatesToFirebase = new CoordinatesToFirebase() ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         askRunTimePermissions();
         getDeviceID();
-        mFirebaseDataBaseRef = FirebaseDatabase.getInstance().getReference("HealthScion");
+        mFirebaseDataBaseRef = FirebaseDatabase.getInstance().getReference("ScionTra");
 
         mGoogleApiClient = new GoogleApiClient.Builder(MapsActivity.this)
                 .addApi(LocationServices.API)
@@ -93,13 +95,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("HealthScion Pvt Ltd."));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(healthScion));
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         mMap.setMyLocationEnabled(true);
@@ -119,15 +114,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            //        Log.e("Rishabh", "Permission Granted");
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-
 
                 } else {
-              //      Log.e("Rishabh", "Permission Not Granted");
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+
                 }
                 return;
             }
@@ -147,13 +136,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //    Log.e("Rishabh", "Location services connected.");
         Toast.makeText(MapsActivity.this, "Connected", Toast.LENGTH_SHORT).show();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             Toast.makeText(MapsActivity.this, "Permissin not granted", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -164,27 +146,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
 
-            /*Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            if (location == null) {
-                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-            }
-            else {
-                Log.e("Rishabh","On handle location called from coonected method");
-                Toast.makeText(MapsActivity.this,"loc not null",Toast.LENGTH_SHORT).show();
-                handleNewLocation(location,count);
-            }*/
-
-
         }
-
-
     }
 
     private void handleNewLocation(Location location, int counter) {
         int c = counter;
         Toast.makeText(MapsActivity.this, "New Loc :" + c + " changed =" + location.toString(), Toast.LENGTH_SHORT).show();
+
         mCurrentLatitude = location.getLatitude();
         mCurrentLongitude = location.getLongitude();
+
+        mCoordinatesToFirebase = new CoordinatesToFirebase(mCurrentLatitude , mCurrentLongitude) ;
+
+        if(TextUtils.isEmpty(mCoordinatesToFirebase.getDeviceId())) {
+            mCoordinatesToFirebase.setDeviceId(mDeviceID);
+        }
+
+
         LatLng latLng = new LatLng(mCurrentLatitude, mCurrentLongitude);
         MarkerOptions options = new MarkerOptions()
                 .position(latLng)
@@ -223,13 +201,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     private void sendCoordinatesToFirebaseDatabase() {
-
-      //  Log.e("Rishabh", "sending Data to Firebase := " + mDeviceID + " " + mCurrentLatitude + " " + mCurrentLongitude);
-
-        mFirebaseDataBaseRef.child("deviceId").setValue(mDeviceID);
-        mFirebaseDataBaseRef.child("coordinates").child("Latitude").setValue(mCurrentLatitude);
-        mFirebaseDataBaseRef.child("coordinates").child("Longitude").setValue(mCurrentLongitude);
-
+        mFirebaseDataBaseRef.child("coordinates").setValue(mCoordinatesToFirebase);
     }
 
 
@@ -251,25 +223,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (NEXUS_DEVICE_ID.equalsIgnoreCase(mDeviceID)) {
 
-            mFirebaseDataBaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            mFirebaseDataBaseRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
 
                     Log.e("Rishabh", "JSON" + dataSnapshot.getValue().toString());
+                    // JSON :=  JSON{coordinates={latitude=28.5819137, longitude=77.3220546, deviceId=357196052720716}}
 
-
-                    // JSON :=  {deviceId=862512030120555, coordinates={Longitude=77.3220119, Latitude=28.5818988}}
-
-                    String latitude = String.valueOf(dataSnapshot.child("coordinates").child("Latitude").getValue());
-                    String longitude = String.valueOf(dataSnapshot.child("coordinates").child("Longitude").getValue());
-                    String deviceId = String.valueOf(dataSnapshot.child("deviceId").getValue());
-
-              //      Log.e("Rishabh", "User Location Changed := " + "Latitude :" + latitude + " " + " Longitude : " + longitude);
+                    String latitude = String.valueOf(dataSnapshot.child("coordinates").child("latitude").getValue());
+                    String longitude = String.valueOf(dataSnapshot.child("coordinates").child("longitude").getValue());
+                    String deviceId = String.valueOf(dataSnapshot.child("coordinates").child("deviceId").getValue());
 
                     Toast.makeText(MapsActivity.this, "Latitude : " + latitude + " " + " Longitude : " + longitude, Toast.LENGTH_SHORT).show();
 
                     double l1 = Double.parseDouble(latitude);
-
                     double l2 = Double.parseDouble(longitude);
 
                     List<Coordinate> coordinatesList = null;
@@ -309,22 +276,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void showMapOnMasterDevice(double a, double b, int color) {
 
-
-
-      //  Log.e("Rishabh", "latitude in master deveice := " + a);
-      //  Log.e("Rishabh", "longitude in master deveice := " + b);
-
         LatLng latLng = new LatLng(a, b);
         MarkerOptions options = new MarkerOptions()
                 .position(latLng)
                 .title("I am going here!");
         mPlottingCoordinates.add(latLng); //added
-
      //   mMap.addMarker(options);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
         drawGraphForAdmin(color);
-
-
     }
 
 
@@ -359,8 +318,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(Location location) {
-     //   Log.e("Rishabh", "onLocationChange called");
-
         if (!location.hasAccuracy()) {
             return;
         }
@@ -368,8 +325,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             count = count + 1;
             handleNewLocation(location, count);
         }
-
-
     }
 
     @Override
